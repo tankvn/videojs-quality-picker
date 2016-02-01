@@ -9,12 +9,16 @@ module.exports = function(grunt) {
         browserify: {
             main: {
                 src: 'lib/vjs-quality-picker.js',
-                dest: 'debug/vjs-quality-picker.js'
+                dest: 'debug/vjs-quality-picker.js',
+                options:  {
+                   transform: ['babelify'],
+                   browserifyOptions: {
+                       debug: true
+                   },
+                   watch: true,
+                   keepAlive: true
+               }
             }
-        },
-        watch: {
-            files: 'lib/vjs-quality-picker.js',
-            tasks: ['browserify']
         }
     });
 }
