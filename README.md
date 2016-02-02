@@ -35,11 +35,16 @@ Here is expected payload structure:
 }
 ```
 
+NOTES:
+- In the following, **track type** refers to the enum: `"video" | "audio" | "subtitle"`.
+- it's not mandatory to pass an array of Quality for every track type, it can be undefined. No quality picker button will be added for this track type.
+- If the length of a Quality array is `<= 1`, no quality picker button will be added for its track type.
+
 #### qualitySwitchCallback
 
 `qualitySwitchCallback(qualityId, trackType)`
 
-This callback function will be called with the Quality id and the the track type `(video | audio | subtitle)` as arguments. Its role is to effectively perform the quality change on the player
+This callback function will be called with the Quality id and the the track type as arguments. Its role is to effectively perform the quality change on the player
 
 
 
