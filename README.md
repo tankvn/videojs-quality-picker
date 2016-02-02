@@ -6,36 +6,122 @@ Adds quality menu to video.js which allows users to manually select a specific q
 
 Plugin works with video.js 5.0 and newer.
 
-## How it works
 
-Plugin listens to the custom event `loadedqualitydata` fired by player's tech.
-An object with available qualities and a callback for triggering quality switching are passed as 2nd param to event handler.
-Here is payload structure:
 
+## Make a tech / source handler compatible
+
+#### How it works
+
+The plugin listens to the custom event `loadedqualitydata` fired by player's tech / source handler.
+
+The tech must:
+- Get the quality list from the underlying playback technology
+- Format the quality list to the format given below
+- Implement a callback function for the click action on the quality picker. The quality id (see below) is passed to this function which should use it to effectively perform the quality change using the underlying player API.
+- Trigger a custom tech event `loadedqualitydata`, with a payload which format is described below
+
+
+#### Expected format
+
+Here is expected payload structure:
 ```javascript
 {
-  qualityData: [
-    {
-      id: -1,             // unique identifier of this quality. -1 is used for automatic quality switching(ABR)
-      label: 'auto',      // text for quality label in the menu
-      selected: true      // only one quality can be selected at the time
-    },
-    {
-      id: 0,
-      label: '720p',
-      selected: false
-    },
-    {
-      id: 1,
-      label: '1080p',
-      selected: false
-    },
-    ...
-  ],
-  qualitySwitchCallback: Function // method reference used for quality switching. quality id is passed as a param to this method
+  qualityData: {
+    video: [ Quality ], // An array of Quality objects, as defined below
+    audio: [ Quality ]
+  },
+  qualitySwitchCallback: Function // callback function used for quality switching. quality id is passed as a param to this method
 }
 ```
 
-## Contributing
+#### Quality
 
-## License
+###### Examples
+
+```javascript
+{
+  id: -1,
+  label: 'auto',
+  selected: true
+}
+```
+
+```javascript
+{
+  id: { adaptationSetId: 0, representationId: 2},
+  label: '720p',
+  selected: false
+}
+```
+
+###### Properties
+
+property    | type  |description
+------------|-------|-----------------------------------
+id          | Any   | Unique identifier for the quality. Can be an integer (level index for HLS), or an object ( {adaptationSetId: ..., representationId: ...} for Dash) .
+label       | String | The text that will be displayed to identify this quality in the drop down menu
+selected    | Boolean | Should be true for ONE quality ONLY: the one that is currently played by the player
+
+#### Hls.js Example
+
+
+```javascript
+
+    // hls.js init
+    var hls = new Hls(config);
+    hls.on(Hls.Events.MANIFEST_PARSED, onManifestParsed); // Listen to the event MANIFEST_PARSED, to get the quality list.
+
+    hls.loadSource(url);
+    hls.attachMedia(video);
+
+    //...
+    //...
+    //...
+
+
+    // Callback function
+    function switchQuality(qualityId) {
+        hls.nextLevel = qualityId; // Perform quality switch using hls.js API
+    }
+
+    function onManifestParsed(event, data) {
+        // 1. Format payload
+        var cleanTracklist = [];
+
+        // Add an "auto" quality.
+        if (data.levels.length > 1) {
+            var autoLevel = {
+                id: -1,
+                label: "auto",
+                selected: -1 === hls.manualLevel
+            };
+            cleanTracklist.push(autoLevel);
+        }
+
+        // Format each hls level into the expected "Quality" format
+        data.levels.forEach(function(level, index) {
+            var quality = {}; // Don't write in level (shared reference with Hls.js)
+            quality.id = index;
+            quality.selected = index === hls.manualLevel;
+            quality.label = _levelLabel(level);
+
+            cleanTracklist.push(quality);
+        });
+
+        var payload = {
+            qualityData: {video: cleanTracklist},
+            qualitySwitchCallback: switchQuality
+        };
+
+        // 2. Trigger custom event from tech
+        tech.trigger('loadedqualitydata', payload);
+
+        // Helper method used to format the Quality's label
+        function _levelLabel(level) {
+            if (level.height) return level.height + "p";
+            else if (level.width) return Math.round(level.width * 9 / 16) + "p";
+            else if (level.bitrate) return (level.bitrate / 1000) + "kbps";
+            else return 0;
+        }
+    }
+```
