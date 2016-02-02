@@ -13,7 +13,9 @@
     ]
   },
   "dependencies": {
-    "babelify": "^6.1.3"
+    "babel-plugin-transform-object-assign": "^6.3.13",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
