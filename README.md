@@ -28,7 +28,8 @@ Here is expected payload structure:
 {
   qualityData: {
     video: [ Quality ], // An array of Quality objects, as defined below
-    audio: [ Quality ]
+    audio: [ Quality ],
+    subtitle: [ Quality ]
   },
   qualitySwitchCallback: Function // callback function used for quality switching, as defined below
 }
@@ -38,7 +39,7 @@ Here is expected payload structure:
 
 `qualitySwitchCallback(qualityId, trackType)`
 
-This callback function will be called with the Quality id and the the track type `(video | audio)` as arguments. Its role is to effectively perform the quality change on the player
+This callback function will be called with the Quality id and the the track type `(video | audio | subtitle)` as arguments. Its role is to effectively perform the quality change on the player
 
 
 
