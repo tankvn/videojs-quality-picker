@@ -1,6 +1,10 @@
-# Video.js quality menu
+# Video.js quality picker
 
-Adds quality menu to video.js which allows users to manually select a specific quality for multi-bitrate video or enable automatic quality selection
+Adds quality picker menus to video.js which allows users to perform manual quality selection for multi-bitrate video, or multi-language audio / subtitles.
+
+NOTE: In this project, quality can refer to:
+ - a specific video / audio bitrate (or auto selection)
+ - a specific audio / subtitle language (or disabled subtitles)
 
 ## Installation
 
