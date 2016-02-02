@@ -17,11 +17,11 @@ The plugin listens to the custom event `loadedqualitydata` fired by player's tec
 The tech must:
 - Get the quality list from the underlying playback technology
 - Format the quality list to the format given below
-- Implement a callback function for the click action on the quality picker. The quality id (see below) is passed to this function which should use it to effectively perform the quality change using the underlying player API.
+- Implement a callback function for the click action on the quality picker
 - Trigger a custom tech event `loadedqualitydata`, with a payload which format is described below
 
 
-#### Expected format
+### Expected format
 
 Here is expected payload structure:
 ```javascript
@@ -30,9 +30,17 @@ Here is expected payload structure:
     video: [ Quality ], // An array of Quality objects, as defined below
     audio: [ Quality ]
   },
-  qualitySwitchCallback: Function // callback function used for quality switching. quality id is passed as a param to this method
+  qualitySwitchCallback: Function // callback function used for quality switching, as defined below
 }
 ```
+
+#### qualitySwitchCallback
+
+`qualitySwitchCallback(qualityId, trackType)`
+
+This callback function will be called with the Quality id and the the track type `(video | audio)` as arguments. Its role is to effectively perform the quality change on the player
+
+
 
 #### Quality
 
@@ -62,7 +70,7 @@ id          | Any   | Unique identifier for the quality. Can be an integer (leve
 label       | String | The text that will be displayed to identify this quality in the drop down menu
 selected    | Boolean | Should be true for ONE quality ONLY: the one that is currently played by the player
 
-#### Hls.js Example
+### Hls.js Example
 
 
 ```javascript
@@ -80,7 +88,7 @@ selected    | Boolean | Should be true for ONE quality ONLY: the one that is cur
 
 
     // Callback function
-    function switchQuality(qualityId) {
+    function switchQuality(qualityId, trackType) {
         hls.nextLevel = qualityId; // Perform quality switch using hls.js API
     }
 
